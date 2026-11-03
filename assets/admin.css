@@ -1,0 +1,2463 @@
+/**
+ * VitalLens admin styling.
+ *
+ * ---------------------------------------------------------------------------
+ * Why nearly every selector starts with .vl-wrap
+ * ---------------------------------------------------------------------------
+ * wp-admin styles form controls through attribute selectors -- input[type=
+ * "search"], input[type="text"], select -- which score (0,1,1). A lone class
+ * like .vl-input scores (0,1,0) and loses. That is not theory: the first
+ * version of this file put a 40px square-cornered WordPress field next to a
+ * 44px rounded VitalLens button in the same row, on every screen with a form,
+ * and the plugin read as two products stitched together. .wrap h1 beats
+ * .vl-title the same way, which is why the page headings came out as stock
+ * WordPress 23px.
+ *
+ * Prefixing with .vl-wrap takes a rule to (0,2,0), which wins without a single
+ * !important. So: component rules are written as `.vl-wrap .thing`, never
+ * `.thing`. The one exception is the dots in the posts list table, which have
+ * no .vl-wrap ancestor and are marked as such at the bottom.
+ *
+ * @package VitalLens
+ */
+
+/* ------------------------------------------------------------------ tokens */
+
+.vl-wrap {
+	/* Surfaces */
+	--vl-bg: #f6f7fb;
+	--vl-surface: #fff;
+	--vl-sunken: #fafafc;
+
+	/* Lines: a hairline for dividers, and something you can actually see
+	   around anything the user is meant to click or type into. */
+	--vl-line: #ebebf1;
+	--vl-line-strong: #dedfe8;
+	--vl-field: #c6c7d4;
+
+	/* Ink */
+	--vl-ink: #14141c;
+	--vl-body: #53566a;
+	--vl-muted: #83869a;
+
+	/* Accent */
+	--vl-accent: #4f46e5;
+	--vl-accent-ink: #4338ca;
+	--vl-accent-soft: #f4f5ff;
+	--vl-accent-line: #d8dbff;
+
+	/* Verdicts */
+	--vl-good: #047857;
+	--vl-good-soft: #ecfdf5;
+	--vl-good-line: #a7f3d0;
+	--vl-warn: #92620a;
+	--vl-warn-soft: #fffbeb;
+	--vl-warn-line: #fde68a;
+	--vl-poor: #b91c1c;
+	--vl-poor-soft: #fef2f2;
+	--vl-poor-line: #fecaca;
+
+	/* One radius scale: controls, panels, and anything pill-shaped. Three
+	   values, so nothing reads as half-rounded by accident. */
+	--vl-r-control: 8px;
+	--vl-r-panel: 12px;
+	--vl-r-pill: 999px;
+
+	/* One control height, shared by inputs, selects and buttons, so a field
+	   and the button beside it line up without anyone nudging anything. */
+	--vl-control: 40px;
+
+	/* Spacing scale: 4 / 8 / 12 / 16 / 24 / 32. Nothing in between. */
+	--vl-s1: 4px;
+	--vl-s2: 8px;
+	--vl-s3: 12px;
+	--vl-s4: 16px;
+	--vl-s5: 24px;
+	--vl-s6: 32px;
+
+	--vl-shadow: 0 1px 2px rgba(20, 20, 28, 0.04);
+	--vl-shadow-lift: 0 1px 2px rgba(20, 20, 28, 0.04), 0 12px 32px -24px rgba(20, 20, 28, 0.35);
+
+	/*
+	 * Full width, like core's own list tables. The cap used to be 1100px,
+	 * which left a dead strip down the right of every screen on a normal
+	 * desktop while the widest tables -- Tracked pages and the report --
+	 * were the ones being squeezed. Prose keeps its own ch-based measures
+	 * below, so nothing here stretches to an unreadable line length.
+	 */
+	margin: 0 20px 0 0;
+	padding-top: var(--vl-s2);
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--vl-ink);
+	-webkit-font-smoothing: antialiased;
+
+	/*
+	 * Set rather than inherited. The mockups used Inter, but pulling it from
+	 * Google Fonts would mean an external request on every admin page load and
+	 * a GDPR question the site owner never asked for. The modern system stack
+	 * gets the same crisp feel from fonts already on the machine.
+	 */
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		"Helvetica Neue", Arial, sans-serif;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------ normalising */
+
+.vl-wrap *,
+.vl-wrap *::before,
+.vl-wrap *::after {
+	box-sizing: border-box;
+}
+
+.vl-wrap p,
+.vl-wrap h1,
+.vl-wrap h2,
+.vl-wrap h3,
+.vl-wrap td,
+.vl-wrap th,
+.vl-wrap label,
+.vl-wrap legend,
+.vl-wrap button,
+.vl-wrap input,
+.vl-wrap select,
+.vl-wrap textarea {
+	font-family: inherit;
+}
+
+.vl-wrap a {
+	color: var(--vl-accent);
+	text-decoration: none;
+}
+
+.vl-wrap a:hover {
+	color: var(--vl-accent-ink);
+	text-decoration: underline;
+}
+
+.vl-wrap a:focus,
+.vl-wrap button:focus,
+.vl-wrap input:focus,
+.vl-wrap select:focus {
+	box-shadow: none;
+	outline: none;
+}
+
+.vl-wrap a:focus-visible,
+.vl-wrap button:focus-visible,
+.vl-wrap summary:focus-visible {
+	outline: 2px solid var(--vl-accent);
+	outline-offset: 2px;
+	border-radius: var(--vl-r-control);
+}
+
+/* Boxes you tick --------------------------------------------------------- */
+
+/*
+ * Rebuilt rather than restyled. wp-admin draws its tick with a dashicons
+ * glyph in ::before, which no background-image will cover, so the glyph has
+ * to be switched off explicitly.
+ */
+.vl-wrap input[type="checkbox"],
+.vl-wrap input[type="radio"] {
+	appearance: none;
+	-webkit-appearance: none;
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+	min-width: 18px;
+	margin: 0;
+	padding: 0;
+	border: 1.5px solid var(--vl-field);
+	border-radius: 5px;
+	background-color: #fff;
+	background-repeat: no-repeat;
+	background-position: center;
+	box-shadow: none;
+	cursor: pointer;
+	transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.vl-wrap input[type="radio"] {
+	border-radius: var(--vl-r-pill);
+}
+
+.vl-wrap input[type="checkbox"]::before,
+.vl-wrap input[type="radio"]::before,
+.vl-wrap input[type="checkbox"]:checked::before,
+.vl-wrap input[type="radio"]:checked::before {
+	content: none;
+}
+
+.vl-wrap input[type="checkbox"]:hover,
+.vl-wrap input[type="radio"]:hover {
+	border-color: var(--vl-accent);
+}
+
+.vl-wrap input[type="checkbox"]:checked {
+	background-color: var(--vl-accent);
+	border-color: var(--vl-accent);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.4l3 3 6-6.5'/%3E%3C/svg%3E");
+	background-size: 14px 14px;
+}
+
+/* The select-all, when only some of the rows under it are ticked. */
+.vl-wrap input[type="checkbox"]:indeterminate {
+	background-color: var(--vl-accent);
+	border-color: var(--vl-accent);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M4 8h8'/%3E%3C/svg%3E");
+	background-size: 14px 14px;
+}
+
+.vl-wrap input[type="radio"]:checked {
+	border-width: 5.5px;
+	border-color: var(--vl-accent);
+	background-color: #fff;
+}
+
+.vl-wrap input[type="checkbox"]:focus-visible,
+.vl-wrap input[type="radio"]:focus-visible {
+	outline: 2px solid var(--vl-accent);
+	outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ typography */
+
+.vl-wrap .vl-title {
+	margin: 0 0 var(--vl-s2);
+	padding: 0;
+	font-size: 26px;
+	font-weight: 650;
+	line-height: 1.2;
+	letter-spacing: -0.022em;
+	color: var(--vl-ink);
+}
+
+.vl-wrap .vl-eyebrow {
+	margin-bottom: var(--vl-s1);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-lede {
+	margin: 0 0 var(--vl-s5);
+	max-width: 70ch;
+	font-size: 14px;
+	color: var(--vl-body);
+}
+
+.vl-wrap .vl-muted {
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-help {
+	/*
+	 * Its own measure, because the wrapper no longer caps the page. Without
+	 * this a one-sentence hint runs the full width of a desktop screen.
+	 */
+	max-width: 86ch;
+	margin: var(--vl-s3) 0 0;
+	font-size: 13px;
+	line-height: 1.65;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-help--wide {
+	max-width: 74ch;
+	margin-top: var(--vl-s5);
+}
+
+.vl-wrap .vl-help code,
+.vl-wrap .vl-note code {
+	padding: 2px 6px;
+	font-size: 12px;
+	background: var(--vl-bg);
+	border: 1px solid var(--vl-line);
+	border-radius: 5px;
+}
+
+.vl-wrap .vl-empty {
+	margin: 0;
+	font-size: 13.5px;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-empty--pad {
+	padding: var(--vl-s6) var(--vl-s5);
+	text-align: center;
+}
+
+/* --------------------------------------------------------- page headers */
+
+.vl-wrap .vl-head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s4);
+	align-items: flex-end;
+	justify-content: space-between;
+	margin-bottom: var(--vl-s5);
+}
+
+.vl-wrap .vl-head__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s2);
+}
+
+.vl-wrap .vl-back {
+	display: inline-block;
+	margin: 0 0 var(--vl-s3);
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.vl-wrap .vl-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s2);
+	margin-top: var(--vl-s3);
+}
+
+.vl-wrap .vl-tag {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 11px;
+	font-size: 12px;
+	color: var(--vl-body);
+	background: var(--vl-surface);
+	border: 1px solid var(--vl-line-strong);
+	border-radius: var(--vl-r-pill);
+}
+
+/* A badge inside a tag would otherwise draw two outlines around one word. */
+.vl-wrap .vl-tag .vl-badge {
+	margin: -4px -11px;
+}
+
+/* ------------------------------------------------------------------ cards */
+
+.vl-wrap .vl-card {
+	margin: 0 0 var(--vl-s4);
+	padding: var(--vl-s5);
+	background: var(--vl-surface);
+	border: 1px solid var(--vl-line);
+	border-radius: var(--vl-r-panel);
+	box-shadow: var(--vl-shadow);
+}
+
+.vl-wrap .vl-card--flush {
+	padding: 0;
+	overflow: hidden;
+}
+
+.vl-wrap .vl-card__title {
+	display: flex;
+	align-items: center;
+	gap: var(--vl-s2);
+	margin: 0;
+	padding: 0;
+	font-size: 15px;
+	font-weight: 650;
+	line-height: 1.35;
+	color: var(--vl-ink);
+}
+
+.vl-wrap .vl-card__sub {
+	margin: var(--vl-s1) 0 var(--vl-s5);
+	font-size: 13px;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-card__head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s3);
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--vl-s4) var(--vl-s5);
+	background: var(--vl-sunken);
+	border-bottom: 1px solid var(--vl-line);
+	font-size: 13px;
+}
+
+/* Inside a padded card there is no edge to sit against, so no fill either. */
+.vl-wrap .vl-card__head--plain {
+	padding: 0 0 var(--vl-s4);
+	background: transparent;
+	border-bottom: 0;
+}
+
+.vl-wrap .vl-note {
+	margin: 0;
+	padding: var(--vl-s3) var(--vl-s5);
+	font-size: 13px;
+	line-height: 1.6;
+	color: var(--vl-body);
+	background: var(--vl-accent-soft);
+	border-bottom: 1px solid var(--vl-line);
+}
+
+/* --------------------------------------------------------------- notices */
+
+/*
+ * Ours, not wp-admin's. A stock .notice is a square-cornered box with a 4px
+ * left bar, which next to a 12px rounded card reads as something another
+ * plugin left behind.
+ */
+.vl-wrap .vl-notice {
+	display: flex;
+	gap: var(--vl-s3);
+	align-items: flex-start;
+	margin: 0 0 var(--vl-s4);
+	padding: var(--vl-s3) var(--vl-s4);
+	font-size: 13.5px;
+	line-height: 1.55;
+	border: 1px solid;
+	border-radius: var(--vl-r-panel);
+}
+
+.vl-wrap .vl-notice p {
+	margin: 0;
+}
+
+.vl-wrap .vl-notice::before {
+	content: "";
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+	margin-top: 1px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 18px 18px;
+}
+
+.vl-wrap .vl-notice--good {
+	color: #065f46;
+	background: var(--vl-good-soft);
+	border-color: var(--vl-good-line);
+}
+
+.vl-wrap .vl-notice--good::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23047857' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10' cy='10' r='7.5'/%3E%3Cpath d='M6.8 10.2l2.2 2.2 4.2-4.6'/%3E%3C/svg%3E");
+}
+
+.vl-wrap .vl-notice--info {
+	color: var(--vl-accent-ink);
+	background: var(--vl-accent-soft);
+	border-color: var(--vl-accent-line);
+}
+
+.vl-wrap .vl-notice--info::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%234338ca' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='10' cy='10' r='7.5'/%3E%3Cpath d='M10 9.2v4.4M10 6.4v.2'/%3E%3C/svg%3E");
+}
+
+.vl-wrap .vl-notice--bad {
+	color: #991b1b;
+	background: var(--vl-poor-soft);
+	border-color: var(--vl-poor-line);
+}
+
+.vl-wrap .vl-notice--bad::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23b91c1c' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='10' cy='10' r='7.5'/%3E%3Cpath d='M10 6.2v4.6M10 13.6v.2'/%3E%3C/svg%3E");
+}
+
+/* ----------------------------------------------------------------- fields */
+
+.vl-wrap .vl-input {
+	appearance: none;
+	-webkit-appearance: none;
+	display: block;
+	width: 100%;
+	max-width: none;
+	height: var(--vl-control);
+	min-height: var(--vl-control);
+	margin: 0;
+	padding: 0 var(--vl-s3);
+	font-size: 13.5px;
+	line-height: normal;
+	color: var(--vl-ink);
+	background-color: var(--vl-surface);
+	border: 1px solid var(--vl-field);
+	border-radius: var(--vl-r-control);
+	box-shadow: none;
+	transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.vl-wrap .vl-input::placeholder {
+	color: var(--vl-muted);
+	opacity: 1;
+}
+
+.vl-wrap .vl-input:hover {
+	border-color: var(--vl-line-strong);
+}
+
+.vl-wrap .vl-input:focus {
+	border-color: var(--vl-accent);
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16);
+	outline: none;
+}
+
+/* The native arrow goes with the native appearance, so one is drawn back. */
+.vl-wrap select.vl-input {
+	padding-right: 34px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2353566a' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+	background-size: 18px 18px;
+	cursor: pointer;
+}
+
+.vl-wrap .vl-input--mono {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	letter-spacing: 0.01em;
+}
+
+.vl-wrap .vl-field-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s2);
+	align-items: center;
+}
+
+.vl-wrap .vl-field-row .vl-input {
+	flex: 999 1 320px;
+	min-width: 0;
+}
+
+.vl-wrap .vl-label {
+	display: block;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.vl-wrap .vl-label > span,
+.vl-wrap .vl-label > legend {
+	display: block;
+	margin: 0 0 var(--vl-s2);
+	padding: 0;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--vl-body);
+}
+
+/* Its own row under the schedule grid, not a grid cell: two checkboxes do
+   not need a third of the width, and they read better on one line. */
+.vl-wrap .vl-devices {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0 var(--vl-s2);
+	margin-top: var(--vl-s4);
+}
+
+.vl-wrap .vl-devices > legend {
+	flex: 1 0 100%;
+}
+
+.vl-wrap .vl-check {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--vl-s2);
+	height: var(--vl-control);
+	margin: 0 var(--vl-s4) 0 0;
+	font-size: 13.5px;
+	color: var(--vl-ink);
+	cursor: pointer;
+}
+
+.vl-wrap .vl-grid-2,
+.vl-wrap .vl-grid-3 {
+	display: grid;
+	gap: var(--vl-s4);
+}
+
+.vl-wrap .vl-grid-2 {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.vl-wrap .vl-grid-3 {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* ---------------------------------------------------------------- buttons */
+
+.vl-wrap .vl-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: var(--vl-control);
+	min-height: var(--vl-control);
+	padding: 0 var(--vl-s4);
+	font-size: 13.5px;
+	font-weight: 600;
+	line-height: 1;
+	white-space: nowrap;
+	border: 1px solid transparent;
+	border-radius: var(--vl-r-control);
+	cursor: pointer;
+	text-decoration: none;
+	transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.vl-wrap .vl-btn:hover {
+	text-decoration: none;
+}
+
+.vl-wrap .vl-btn--primary {
+	color: #fff;
+	background: var(--vl-accent);
+}
+
+.vl-wrap .vl-btn--primary:hover {
+	color: #fff;
+	background: var(--vl-accent-ink);
+}
+
+.vl-wrap .vl-btn--ghost {
+	color: var(--vl-ink);
+	background: var(--vl-surface);
+	border-color: var(--vl-field);
+	font-weight: 500;
+}
+
+.vl-wrap .vl-btn--ghost:hover {
+	color: var(--vl-ink);
+	background: var(--vl-sunken);
+	border-color: var(--vl-line-strong);
+}
+
+.vl-wrap .vl-btn--copy {
+	flex: 0 0 auto;
+	padding: 0 var(--vl-s3);
+	font-size: 12.5px;
+	color: var(--vl-accent-ink);
+	background: var(--vl-surface);
+	border-color: var(--vl-accent-line);
+}
+
+.vl-wrap .vl-btn--copy:hover {
+	color: var(--vl-accent-ink);
+	background: var(--vl-accent-soft);
+	border-color: var(--vl-accent);
+}
+
+.vl-wrap .vl-btn[disabled] {
+	opacity: 0.55;
+	cursor: default;
+}
+
+/* ---------------------------------------------------------------- results */
+
+/*
+ * A box, not a stray line of grey text. The first version printed the
+ * button's own label underneath it in body colour, floating against the page
+ * background with nothing around it -- which looked like something had come
+ * loose rather than like a status.
+ */
+.vl-wrap .vl-result {
+	display: flex;
+	gap: var(--vl-s2);
+	align-items: flex-start;
+	/* Bottom margin as well as top: with none, the status box sat directly
+	   on the banner below it and the two read as one misdrawn element. */
+	margin: var(--vl-s3) 0 var(--vl-s4);
+	padding: var(--vl-s2) var(--vl-s3);
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--vl-body);
+	background: var(--vl-sunken);
+	border: 1px solid var(--vl-line);
+	border-radius: var(--vl-r-control);
+}
+
+/* No message, no gap: an always-on min-height left a dead band under the
+   dashboard header on every page load. */
+.vl-wrap .vl-result:empty {
+	display: none;
+}
+
+.vl-wrap .vl-result::before {
+	content: "";
+	flex: 0 0 auto;
+	width: 15px;
+	height: 15px;
+	margin-top: 2px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 15px 15px;
+}
+
+.vl-wrap .vl-result.is-busy {
+	color: var(--vl-body);
+	background: var(--vl-accent-soft);
+	border-color: var(--vl-accent-line);
+}
+
+/* A wait of up to a minute needs something that is visibly still moving. */
+.vl-wrap .vl-result.is-busy::before {
+	width: 14px;
+	height: 14px;
+	border: 2px solid var(--vl-accent-line);
+	border-top-color: var(--vl-accent);
+	border-radius: var(--vl-r-pill);
+	background: none;
+	animation: vl-spin 0.7s linear infinite;
+}
+
+.vl-wrap .vl-result.is-ok {
+	color: #065f46;
+	background: var(--vl-good-soft);
+	border-color: var(--vl-good-line);
+}
+
+.vl-wrap .vl-result.is-ok::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23047857' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='10' cy='10' r='7.5'/%3E%3Cpath d='M6.8 10.2l2.2 2.2 4.2-4.6'/%3E%3C/svg%3E");
+}
+
+.vl-wrap .vl-result.is-bad {
+	color: #991b1b;
+	background: var(--vl-poor-soft);
+	border-color: var(--vl-poor-line);
+}
+
+.vl-wrap .vl-result.is-bad::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23b91c1c' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='10' cy='10' r='7.5'/%3E%3Cpath d='M10 6.2v4.6M10 13.6v.2'/%3E%3C/svg%3E");
+}
+
+@keyframes vl-spin {
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* ------------------------------------------------------------------ menu */
+
+.vl-wrap .vl-menu {
+	position: relative;
+}
+
+.vl-wrap .vl-menu > summary {
+	list-style: none;
+	padding-right: var(--vl-s3);
+}
+
+.vl-wrap .vl-menu > summary::-webkit-details-marker {
+	display: none;
+}
+
+.vl-wrap .vl-menu > summary::after {
+	content: "";
+	width: 14px;
+	height: 14px;
+	margin-left: 6px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2353566a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 14px 14px;
+}
+
+.vl-wrap .vl-menu[open] > summary {
+	background: var(--vl-sunken);
+	border-color: var(--vl-line-strong);
+}
+
+.vl-wrap .vl-menu__panel {
+	position: absolute;
+	right: 0;
+	top: calc(100% + 6px);
+	z-index: 50;
+	width: 272px;
+	padding: 6px;
+	text-align: left;
+	background: var(--vl-surface);
+	border: 1px solid var(--vl-line-strong);
+	border-radius: var(--vl-r-panel);
+	box-shadow: 0 18px 40px -16px rgba(20, 20, 28, 0.3);
+}
+
+.vl-wrap .vl-menu__panel a {
+	display: block;
+	padding: 9px 10px;
+	color: var(--vl-ink);
+	border-radius: var(--vl-r-control);
+	text-decoration: none;
+}
+
+.vl-wrap .vl-menu__panel a:hover {
+	color: var(--vl-ink);
+	background: var(--vl-accent-soft);
+	text-decoration: none;
+}
+
+.vl-wrap .vl-menu__panel strong {
+	display: block;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.vl-wrap .vl-menu__panel span {
+	display: block;
+	margin-top: 1px;
+	font-size: 12px;
+	color: var(--vl-muted);
+}
+
+/* -------------------------------------------------------------- backups */
+
+.vl-wrap .vl-backups {
+	margin-top: var(--vl-s5);
+	padding-top: var(--vl-s5);
+	border-top: 1px solid var(--vl-line);
+}
+
+.vl-wrap .vl-backups__head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s3);
+	align-items: flex-start;
+	justify-content: space-between;
+	margin-bottom: var(--vl-s4);
+}
+
+.vl-wrap .vl-backups__head > div {
+	flex: 999 1 320px;
+	min-width: 0;
+}
+
+.vl-wrap .vl-backups__head strong {
+	display: block;
+	font-size: 13.5px;
+	font-weight: 600;
+}
+
+.vl-wrap .vl-backups__head span {
+	display: block;
+	margin-top: 2px;
+	font-size: 12.5px;
+	line-height: 1.6;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-backups__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	border: 1px solid var(--vl-line);
+	border-radius: var(--vl-r-panel);
+	overflow: hidden;
+}
+
+.vl-wrap .vl-backups__list li {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s3);
+	align-items: center;
+	justify-content: space-between;
+	margin: 0;
+	padding: var(--vl-s3) var(--vl-s4);
+	border-top: 1px solid var(--vl-line);
+}
+
+.vl-wrap .vl-backups__list li:first-child {
+	border-top: 0;
+}
+
+.vl-wrap .vl-backups__list strong {
+	font-size: 13px;
+	font-weight: 600;
+	margin-right: var(--vl-s2);
+}
+
+.vl-wrap .vl-backups__list .vl-btn {
+	height: 32px;
+	min-height: 32px;
+	padding: 0 var(--vl-s3);
+	font-size: 12.5px;
+}
+
+/* -------------------------------------------------- the dashboard widget */
+
+/*
+ * Rendered inside #vitallens_overview .inside, so it has WordPress's own
+ * widget padding around it and must not add page margins of its own.
+ */
+.vl-wrap.vl-widget {
+	max-width: none;
+	margin: 0;
+	padding-top: 0;
+	font-size: 13px;
+}
+
+.vl-widget__verdict {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--vl-s2);
+}
+
+.vl-widget__title {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 650;
+	line-height: 1.35;
+	color: var(--vl-ink);
+}
+
+.vl-widget__counts {
+	display: flex;
+	margin: var(--vl-s4) 0 0;
+	border: 1px solid var(--vl-line);
+	border-radius: var(--vl-r-panel);
+	overflow: hidden;
+}
+
+.vl-widget__counts > div {
+	flex: 1 1 0;
+	min-width: 0;
+	padding: 10px var(--vl-s3);
+	border-left: 1px solid var(--vl-line);
+}
+
+.vl-widget__counts > div:first-child {
+	border-left: 0;
+}
+
+.vl-widget__counts .vl-cost__v {
+	font-size: 18px;
+}
+
+.vl-widget__counts .vl-cost__k {
+	margin: 0;
+	font-size: 10px;
+}
+
+.vl-widget__list {
+	margin: var(--vl-s4) 0 0;
+	padding: 0;
+	list-style: none;
+	border-top: 1px solid var(--vl-line);
+}
+
+.vl-widget__list li {
+	border-bottom: 1px solid var(--vl-line);
+}
+
+.vl-widget__list a {
+	display: block;
+	padding: 9px 0;
+	text-decoration: none;
+}
+
+.vl-widget__list a:hover {
+	text-decoration: none;
+}
+
+.vl-widget__name {
+	display: block;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--vl-ink);
+}
+
+.vl-widget__why {
+	display: block;
+	font-size: 12px;
+	color: var(--vl-muted);
+}
+
+.vl-widget__foot {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s4);
+	margin-top: var(--vl-s3);
+	font-size: 12.5px;
+}
+
+/* ---------------------------------------------------- printable report */
+
+.vl-wrap .vl-report__bar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s3);
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: var(--vl-s5);
+}
+
+.vl-wrap .vl-report__head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s4);
+	align-items: flex-end;
+	justify-content: space-between;
+	padding-bottom: var(--vl-s4);
+	margin-bottom: var(--vl-s5);
+	border-bottom: 2px solid var(--vl-ink);
+}
+
+.vl-wrap .vl-report__brand {
+	display: flex;
+	gap: var(--vl-s3);
+	align-items: flex-start;
+}
+
+.vl-wrap .vl-report__brand .vl-mark {
+	flex: 0 0 auto;
+	margin-top: -2px;
+}
+
+.vl-wrap .vl-report__product {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: var(--vl-s2);
+	margin-bottom: 2px;
+	font-size: 15px;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	color: var(--vl-accent-ink);
+}
+
+.vl-wrap .vl-report__product span {
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-report__stamp {
+	/* A long site name must wrap rather than crowd the title; paper is
+	   narrower than the screen this was laid out on. */
+	max-width: 46%;
+	font-size: 12px;
+	line-height: 1.7;
+	color: var(--vl-muted);
+	text-align: right;
+}
+
+.vl-wrap .vl-report__stamp strong {
+	display: block;
+	font-size: 13.5px;
+	font-weight: 650;
+	color: var(--vl-ink);
+}
+
+.vl-wrap .vl-report__stamp span {
+	display: block;
+}
+
+/* Only ever printed. */
+.vl-wrap .vl-report__running {
+	display: none;
+}
+
+/* ------------------------------------------------------ report credits */
+
+.vl-wrap .vl-report__credits {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s4);
+	align-items: flex-start;
+	justify-content: space-between;
+	margin-top: var(--vl-s5);
+	padding-top: var(--vl-s4);
+	border-top: 1px solid var(--vl-line-strong);
+	font-size: 11.5px;
+	line-height: 1.65;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-report__credits-main {
+	flex: 999 1 420px;
+	min-width: 0;
+	max-width: 78ch;
+}
+
+.vl-wrap .vl-report__credits-brand {
+	display: flex;
+	align-items: center;
+	gap: var(--vl-s2);
+	margin-bottom: var(--vl-s2);
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--vl-body);
+}
+
+.vl-wrap .vl-report__credits p {
+	margin: 0 0 4px;
+}
+
+.vl-wrap .vl-report__credits-side {
+	flex: 0 0 auto;
+	text-align: right;
+}
+
+.vl-wrap .vl-report__credits-side a {
+	display: block;
+	font-weight: 600;
+}
+
+.vl-wrap .vl-report__credits-side span {
+	display: block;
+}
+
+.vl-wrap .vl-report__verdict {
+	margin-bottom: var(--vl-s4);
+	padding: var(--vl-s4) var(--vl-s5);
+	background: var(--vl-surface);
+	border: 1px solid var(--vl-line);
+	border-left: 3px solid var(--vl-line-strong);
+	border-radius: var(--vl-r-panel);
+}
+
+.vl-wrap .vl-report__verdict--good { border-left-color: #10b981; }
+.vl-wrap .vl-report__verdict--warn { border-left-color: #f59e0b; }
+.vl-wrap .vl-report__verdict--bad { border-left-color: #ef4444; }
+.vl-wrap .vl-report__verdict--info { border-left-color: var(--vl-accent); }
+
+.vl-wrap .vl-report__foot {
+	margin-top: var(--vl-s4);
+	font-size: 12px;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-table .vl-num {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.vl-wrap .vl-table--report td {
+	padding-top: var(--vl-s2);
+	padding-bottom: var(--vl-s2);
+}
+
+/* ------------------------------------------------------------ stat strip */
+
+.vl-wrap .vl-cost {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 0 0 var(--vl-s4);
+	background: var(--vl-surface);
+	border: 1px solid var(--vl-line);
+	border-radius: var(--vl-r-panel);
+	box-shadow: var(--vl-shadow);
+	overflow: hidden;
+}
+
+.vl-wrap .vl-cost > div {
+	flex: 1 1 140px;
+	min-width: 0;
+	padding: var(--vl-s4) var(--vl-s5);
+	border-left: 1px solid var(--vl-line);
+}
+
+.vl-wrap .vl-cost > div:first-child {
+	border-left: 0;
+}
+
+.vl-wrap .vl-cost__k {
+	display: block;
+	margin-bottom: var(--vl-s1);
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-cost__v {
+	display: block;
+	font-size: 22px;
+	font-weight: 650;
+	line-height: 1.2;
+	letter-spacing: -0.02em;
+}
+
+.vl-wrap .vl-cost__v--good { color: var(--vl-good); }
+.vl-wrap .vl-cost__v--bad { color: var(--vl-poor); }
+
+/* A figure that has moved under the user's hands and is not saved yet. */
+.vl-wrap .vl-cost__v.is-live {
+	color: var(--vl-accent-ink);
+}
+
+/* Inside a card the strip is a section, not a floating panel. */
+.vl-wrap .vl-card > .vl-cost {
+	margin: var(--vl-s5) 0 0;
+	background: var(--vl-sunken);
+	box-shadow: none;
+}
+
+/* -------------------------------------------------------- choice cards */
+
+.vl-wrap .vl-fieldset {
+	margin: var(--vl-s5) 0 0;
+	padding: var(--vl-s5) 0 0;
+	border: 0;
+	border-top: 1px solid var(--vl-line);
+}
+
+.vl-wrap .vl-legend {
+	margin: 0 0 var(--vl-s3);
+	padding: 0;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--vl-body);
+}
+
+.vl-wrap .vl-radio-card,
+.vl-wrap .vl-alert {
+	display: flex;
+	gap: var(--vl-s3);
+	align-items: flex-start;
+	padding: var(--vl-s4);
+	background: var(--vl-surface);
+	border: 1px solid var(--vl-line-strong);
+	border-radius: var(--vl-r-panel);
+	cursor: pointer;
+	transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.vl-wrap .vl-radio-card:hover,
+.vl-wrap .vl-alert:hover {
+	border-color: var(--vl-field);
+}
+
+.vl-wrap .vl-alert + .vl-alert {
+	margin-top: var(--vl-s2);
+}
+
+.vl-wrap .vl-radio-card.is-on,
+.vl-wrap .vl-alert.is-on {
+	background: var(--vl-accent-soft);
+	border-color: var(--vl-accent-line);
+}
+
+.vl-wrap .vl-radio-card input,
+.vl-wrap .vl-alert input {
+	margin-top: 2px;
+}
+
+.vl-wrap .vl-radio-card strong,
+.vl-wrap .vl-alert strong {
+	display: block;
+	font-size: 13.5px;
+	font-weight: 600;
+	color: var(--vl-ink);
+}
+
+/* Destructive, so it does not light up in the same colour as "email me
+   when a page recovers". */
+.vl-wrap .vl-alert--danger.is-on {
+	background: var(--vl-poor-soft);
+	border-color: var(--vl-poor-line);
+}
+
+.vl-wrap .vl-alert--danger input[type="checkbox"]:hover {
+	border-color: var(--vl-poor);
+}
+
+.vl-wrap .vl-alert--danger input[type="checkbox"]:checked {
+	background-color: var(--vl-poor);
+	border-color: var(--vl-poor);
+}
+
+.vl-wrap .vl-radio-card__sub,
+.vl-wrap .vl-alert__sub {
+	display: block;
+	margin-top: 2px;
+	font-size: 12.5px;
+	line-height: 1.6;
+	color: var(--vl-muted);
+}
+
+/* ------------------------------------------------------------ run status */
+
+.vl-wrap .vl-run-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s3);
+	align-items: center;
+	margin-top: var(--vl-s5);
+	padding-top: var(--vl-s5);
+	border-top: 1px solid var(--vl-line);
+}
+
+.vl-wrap .vl-run-row__text {
+	font-size: 13px;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-run-row__text.is-overdue {
+	color: var(--vl-poor);
+}
+
+.vl-wrap .vl-run-row__text strong {
+	color: inherit;
+}
+
+/* ------------------------------------------------------------- cron help */
+
+.vl-wrap .vl-warn {
+	margin-top: var(--vl-s5);
+	padding: var(--vl-s4);
+	font-size: 13px;
+	line-height: 1.65;
+	color: #78500a;
+	background: var(--vl-warn-soft);
+	border: 1px solid var(--vl-warn-line);
+	border-radius: var(--vl-r-panel);
+}
+
+.vl-wrap .vl-warn strong {
+	color: #5a3c08;
+}
+
+.vl-wrap .vl-cron {
+	margin-top: var(--vl-s4);
+	padding: var(--vl-s5);
+	background: var(--vl-accent-soft);
+	border: 1px solid var(--vl-accent-line);
+	border-radius: var(--vl-r-panel);
+}
+
+.vl-wrap .vl-cron__title {
+	margin: 0;
+	padding: 0;
+	font-size: 14px;
+	font-weight: 650;
+	color: var(--vl-ink);
+}
+
+.vl-wrap .vl-cron__sub {
+	margin: var(--vl-s1) 0 var(--vl-s5);
+	font-size: 13px;
+	line-height: 1.6;
+	color: var(--vl-body);
+}
+
+.vl-wrap .vl-step + .vl-step {
+	margin-top: var(--vl-s5);
+}
+
+.vl-wrap .vl-step__label {
+	margin-bottom: var(--vl-s2);
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--vl-ink);
+}
+
+.vl-wrap .vl-step__note {
+	margin: var(--vl-s2) 0 0;
+	font-size: 12px;
+	line-height: 1.6;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-copy-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s2);
+	align-items: stretch;
+}
+
+.vl-wrap .vl-code {
+	display: flex;
+	flex: 999 1 320px;
+	min-width: 0;
+	align-items: center;
+	height: var(--vl-control);
+	padding: 0 var(--vl-s3);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12px;
+	color: #e8e9f2;
+	background: var(--vl-ink);
+	border-radius: var(--vl-r-control);
+	overflow-x: auto;
+	white-space: pre;
+}
+
+.vl-wrap .vl-details {
+	margin-top: var(--vl-s5);
+}
+
+.vl-wrap .vl-details summary {
+	display: inline-block;
+	padding: 2px 0;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--vl-accent);
+	cursor: pointer;
+}
+
+.vl-wrap .vl-details[open] summary {
+	margin-bottom: var(--vl-s3);
+}
+
+/* ---------------------------------------------------------------- banner */
+
+.vl-wrap .vl-banner {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s5);
+	align-items: center;
+	justify-content: space-between;
+	margin: 0 0 var(--vl-s4);
+	padding: var(--vl-s5);
+	background: var(--vl-surface);
+	border: 1px solid var(--vl-line);
+	border-left: 3px solid var(--vl-line-strong);
+	border-radius: var(--vl-r-panel);
+	box-shadow: var(--vl-shadow-lift);
+}
+
+.vl-wrap .vl-banner--good { border-left-color: #10b981; }
+.vl-wrap .vl-banner--warn { border-left-color: #f59e0b; }
+.vl-wrap .vl-banner--bad { border-left-color: #ef4444; }
+.vl-wrap .vl-banner--info { border-left-color: var(--vl-accent); }
+
+.vl-wrap .vl-banner__body {
+	flex: 999 1 340px;
+	min-width: 0;
+}
+
+.vl-wrap .vl-banner__title {
+	margin: var(--vl-s3) 0 var(--vl-s2);
+	padding: 0;
+	font-size: 20px;
+	font-weight: 650;
+	line-height: 1.3;
+	letter-spacing: -0.02em;
+	color: var(--vl-ink);
+}
+
+.vl-wrap .vl-banner__detail {
+	margin: 0;
+	max-width: 62ch;
+	font-size: 13.5px;
+	line-height: 1.6;
+	color: var(--vl-body);
+}
+
+.vl-wrap .vl-banner__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s2);
+	margin-top: var(--vl-s4);
+}
+
+.vl-wrap .vl-banner__meta span {
+	padding: 4px 11px;
+	font-size: 12px;
+	color: var(--vl-body);
+	background: var(--vl-bg);
+	border: 1px solid var(--vl-line);
+	border-radius: var(--vl-r-pill);
+}
+
+.vl-wrap .vl-ring {
+	flex: 0 0 auto;
+}
+
+/* ---------------------------------------------------- pills and badges */
+
+.vl-wrap .vl-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 11px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	border-radius: var(--vl-r-pill);
+}
+
+.vl-wrap .vl-pill--good { color: var(--vl-good); background: var(--vl-good-soft); }
+.vl-wrap .vl-pill--warn { color: var(--vl-warn); background: var(--vl-warn-soft); }
+.vl-wrap .vl-pill--bad { color: var(--vl-poor); background: var(--vl-poor-soft); }
+.vl-wrap .vl-pill--info { color: var(--vl-accent-ink); background: var(--vl-accent-soft); }
+
+/*
+ * Badges and chips also render in the posts list table, outside .vl-wrap,
+ * so these two keep plain class selectors and literal colours.
+ */
+.vl-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 10px;
+	font-size: 11px;
+	font-weight: 600;
+	white-space: nowrap;
+	border-radius: 999px;
+}
+
+.vl-badge--good { color: #047857; background: #ecfdf5; }
+.vl-badge--warn { color: #92620a; background: #fffbeb; }
+.vl-badge--muted { color: #53566a; background: #f1f1f6; }
+
+/* Status chips carry numbers, so they are pill-shaped like every other
+   inline status element rather than a fourth corner radius. */
+.vl-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 4px 10px;
+	font-size: 11.5px;
+	font-weight: 600;
+	white-space: nowrap;
+	border-radius: 999px;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------- attention rows */
+
+.vl-wrap .vl-attn {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s4);
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--vl-s4) var(--vl-s5);
+	color: inherit;
+	text-decoration: none;
+	border-bottom: 1px solid var(--vl-line);
+}
+
+.vl-wrap .vl-attn:last-child {
+	border-bottom: 0;
+}
+
+.vl-wrap .vl-attn:hover {
+	color: inherit;
+	background: var(--vl-sunken);
+	text-decoration: none;
+}
+
+.vl-wrap .vl-attn__main {
+	flex: 999 1 220px;
+	min-width: 0;
+}
+
+.vl-wrap .vl-attn__title {
+	display: block;
+	font-size: 13.5px;
+	font-weight: 600;
+	color: var(--vl-ink);
+}
+
+.vl-wrap .vl-attn__why {
+	display: block;
+	margin-top: 1px;
+	font-size: 12.5px;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-attn__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	flex: 0 0 auto;
+}
+
+/* ---------------------------------------------------------------- split */
+
+.vl-wrap .vl-split {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s4);
+	margin-bottom: var(--vl-s4);
+}
+
+.vl-wrap .vl-split__main { flex: 999 1 420px; min-width: 0; }
+.vl-wrap .vl-split__side { flex: 1 1 300px; min-width: 0; }
+
+/* The two columns are one row of cards, not two stacks. */
+.vl-wrap .vl-split > .vl-card {
+	margin-bottom: 0;
+}
+
+/* -------------------------------------------------------------- metrics */
+
+.vl-wrap .vl-metric {
+	padding: var(--vl-s4) var(--vl-s5);
+	border-bottom: 1px solid var(--vl-line);
+}
+
+.vl-wrap .vl-metric:last-child {
+	border-bottom: 0;
+}
+
+.vl-wrap .vl-metric__top {
+	display: flex;
+	gap: var(--vl-s3);
+	align-items: baseline;
+	justify-content: space-between;
+	margin-bottom: var(--vl-s3);
+}
+
+.vl-wrap .vl-metric__name {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--vl-body);
+}
+
+.vl-wrap .vl-metric__value {
+	font-size: 22px;
+	font-weight: 650;
+	letter-spacing: -0.02em;
+	font-variant-numeric: tabular-nums;
+}
+
+.vl-wrap .vl-metric__note {
+	margin-top: var(--vl-s2);
+	font-size: 12px;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-track {
+	position: relative;
+	display: block;
+	height: 8px;
+	background: #f0f0f5;
+	border-radius: var(--vl-r-pill);
+}
+
+.vl-wrap .vl-track__fill {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	border-radius: var(--vl-r-pill);
+}
+
+.vl-wrap .vl-track__mark {
+	position: absolute;
+	top: -4px;
+	bottom: -4px;
+	width: 2px;
+	background: var(--vl-ink);
+	border-radius: 1px;
+}
+
+/* ------------------------------------------------------------------ lab */
+
+.vl-wrap .vl-lab {
+	display: flex;
+	gap: var(--vl-s4);
+	align-items: center;
+	margin-bottom: var(--vl-s4);
+}
+
+.vl-wrap .vl-lab__note {
+	margin: 0;
+	font-size: 12.5px;
+	line-height: 1.6;
+	color: var(--vl-body);
+}
+
+.vl-wrap .vl-lab__row {
+	display: flex;
+	gap: var(--vl-s3);
+	justify-content: space-between;
+	padding: var(--vl-s2) 0;
+	font-size: 13px;
+	color: var(--vl-body);
+	border-top: 1px solid var(--vl-line);
+}
+
+.vl-wrap .vl-lab__row strong {
+	font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------- chart */
+
+.vl-wrap .vl-chart {
+	display: block;
+	width: 100%;
+	height: 200px;
+}
+
+/* ------------------------------------------------- chart interaction */
+
+.vl-wrap .vl-chart-wrap {
+	position: relative;
+	display: block;
+	cursor: crosshair;
+}
+
+.vl-wrap .vl-chart-wrap:focus-visible {
+	outline: 2px solid var(--vl-accent);
+	outline-offset: 3px;
+	border-radius: var(--vl-r-control);
+}
+
+.vl-wrap .vl-chart-guide,
+.vl-wrap .vl-chart-dot,
+.vl-wrap .vl-chart-tip {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.1s ease;
+}
+
+.vl-wrap .vl-chart-wrap.is-hover .vl-chart-guide,
+.vl-wrap .vl-chart-wrap.is-hover .vl-chart-dot,
+.vl-wrap .vl-chart-wrap.is-hover .vl-chart-tip {
+	opacity: 1;
+}
+
+.vl-wrap .vl-chart-guide {
+	top: 0;
+	bottom: 0;
+	width: 1px;
+	margin-left: -0.5px;
+	background: var(--vl-line-strong);
+}
+
+.vl-wrap .vl-chart-dot {
+	width: 11px;
+	height: 11px;
+	margin: -5.5px 0 0 -5.5px;
+	background: var(--vl-surface);
+	border: 2.5px solid var(--vl-accent);
+	border-radius: var(--vl-r-pill);
+	box-shadow: 0 1px 4px rgba(20, 20, 28, 0.25);
+}
+
+.vl-wrap .vl-chart-tip {
+	bottom: calc(100% + 8px);
+	transform: translateX(-50%);
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	padding: 7px 11px;
+	white-space: nowrap;
+	color: #fff;
+	background: var(--vl-ink);
+	border-radius: var(--vl-r-control);
+	box-shadow: 0 10px 26px -10px rgba(20, 20, 28, 0.5);
+}
+
+.vl-wrap .vl-chart-tip strong {
+	font-size: 13.5px;
+	font-weight: 650;
+	font-variant-numeric: tabular-nums;
+	color: #fff;
+}
+
+.vl-wrap .vl-chart-tip span {
+	font-size: 11px;
+	color: #a5a7ba;
+}
+
+.vl-wrap .vl-chart-foot {
+	display: flex;
+	justify-content: space-between;
+	margin-top: var(--vl-s2);
+	font-size: 12px;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-legend-line {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	font-size: 12px;
+	color: var(--vl-body);
+}
+
+.vl-wrap .vl-legend-line__dash {
+	display: inline-block;
+	width: 16px;
+	height: 0;
+	border-top: 2px dashed #ef4444;
+}
+
+.vl-spark-empty {
+	font-size: 11px;
+	color: #83869a;
+}
+
+/* ------------------------------------------------------------- findings */
+
+.vl-wrap .vl-finding {
+	padding: var(--vl-s4) var(--vl-s5);
+	border-bottom: 1px solid var(--vl-line);
+}
+
+.vl-wrap .vl-finding:last-child {
+	border-bottom: 0;
+}
+
+.vl-wrap .vl-finding__top {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s3);
+	align-items: baseline;
+	justify-content: space-between;
+	margin-bottom: var(--vl-s2);
+	font-size: 13.5px;
+	font-weight: 500;
+}
+
+.vl-wrap .vl-finding__evidence {
+	display: block;
+	padding: var(--vl-s2) var(--vl-s3);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11.5px;
+	color: var(--vl-body);
+	background: var(--vl-sunken);
+	border: 1px solid var(--vl-line);
+	border-radius: var(--vl-r-control);
+	word-break: break-all;
+}
+
+/* --------------------------------------------------------------- causes */
+
+.vl-wrap .vl-cause {
+	padding: var(--vl-s4) var(--vl-s5);
+	border-bottom: 1px solid var(--vl-line);
+}
+
+.vl-wrap .vl-cause__head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s2) var(--vl-s3);
+	align-items: baseline;
+}
+
+.vl-wrap .vl-cause__metric {
+	flex: 0 0 auto;
+	padding: 3px 9px;
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	color: var(--vl-accent-ink);
+	background: var(--vl-accent-soft);
+	border-radius: var(--vl-r-pill);
+}
+
+.vl-wrap .vl-cause__metric--cls { color: var(--vl-warn); background: var(--vl-warn-soft); }
+.vl-wrap .vl-cause__metric--tbt,
+.vl-wrap .vl-cause__metric--inp { color: var(--vl-good); background: var(--vl-good-soft); }
+
+.vl-wrap .vl-cause__what {
+	flex: 999 1 auto;
+	min-width: 0;
+	font-size: 13.5px;
+	font-weight: 600;
+	color: var(--vl-ink);
+}
+
+.vl-wrap .vl-cause__amount {
+	flex: 0 0 auto;
+	font-size: 13px;
+	font-weight: 650;
+	font-variant-numeric: tabular-nums;
+	color: var(--vl-body);
+}
+
+.vl-wrap .vl-cause__label {
+	margin: var(--vl-s1) 0 var(--vl-s2);
+	font-size: 12.5px;
+	line-height: 1.5;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-cause__key {
+	margin: var(--vl-s2) 0 3px;
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-cause__selector {
+	margin-bottom: 6px;
+	color: var(--vl-accent-ink);
+}
+
+.vl-wrap .vl-note--foot {
+	border-bottom: 0;
+	border-top: 1px solid var(--vl-line);
+	background: var(--vl-sunken);
+	font-size: 12px;
+	color: var(--vl-muted);
+}
+
+/* ---------------------------------------------------------------- table */
+
+.vl-wrap .vl-table {
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+	font-size: 13.5px;
+	background: var(--vl-surface);
+}
+
+.vl-wrap .vl-table thead th {
+	padding: var(--vl-s3);
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	text-align: left;
+	white-space: nowrap;
+	color: var(--vl-muted);
+	background: var(--vl-sunken);
+	border-bottom: 1px solid var(--vl-line-strong);
+}
+
+.vl-wrap .vl-table td {
+	padding: var(--vl-s3);
+	vertical-align: middle;
+	color: var(--vl-body);
+	border-bottom: 1px solid var(--vl-line);
+}
+
+.vl-wrap .vl-table tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.vl-wrap .vl-table th:first-child,
+.vl-wrap .vl-table td:first-child {
+	padding-left: var(--vl-s5);
+}
+
+.vl-wrap .vl-table th:last-child,
+.vl-wrap .vl-table td:last-child {
+	padding-right: var(--vl-s5);
+}
+
+.vl-wrap .vl-table tbody tr:hover {
+	background: var(--vl-sunken);
+}
+
+/*
+ * A tracked row gets a left marker rather than a background wash: on a
+ * white-on-near-white tint the difference between watched and ignored was
+ * invisible, which is the one thing this table exists to show.
+ */
+.vl-wrap .vl-table tbody tr.is-tracked td:first-child {
+	box-shadow: inset 3px 0 0 var(--vl-accent);
+}
+
+.vl-wrap .vl-table__check {
+	width: 46px;
+	text-align: left;
+}
+
+.vl-wrap .vl-table__check input {
+	display: block;
+}
+
+.vl-wrap .vl-table__title {
+	display: block;
+	font-weight: 600;
+	color: var(--vl-ink);
+	text-decoration: none;
+}
+
+.vl-wrap a.vl-table__title:hover {
+	color: var(--vl-accent-ink);
+}
+
+.vl-wrap .vl-table__sub {
+	display: block;
+	margin-top: 1px;
+	font-size: 12px;
+	color: var(--vl-muted);
+}
+
+.vl-wrap .vl-score {
+	font-weight: 650;
+	font-variant-numeric: tabular-nums;
+	color: var(--vl-ink);
+}
+
+/*
+ * Horizontal scroll for a table that will not fit. It lives inside the card
+ * rather than on it, so the card keeps clipping its own rounded corners while
+ * the table alone moves.
+ */
+.vl-wrap .vl-scroll {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-x: contain;
+}
+
+/* --------------------------------------------------------- table chrome */
+
+.vl-wrap .vl-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s2);
+	align-items: flex-end;
+	margin: 0 0 var(--vl-s4);
+}
+
+.vl-wrap .vl-filters__item {
+	min-width: 0;
+	margin: 0;
+}
+
+.vl-wrap .vl-filters__item--grow {
+	flex: 1 1 240px;
+}
+
+.vl-wrap .vl-filters__item > span {
+	display: block;
+	margin: 0 0 var(--vl-s2);
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--vl-body);
+}
+
+.vl-wrap .vl-filters .vl-btn {
+	flex: 0 0 auto;
+}
+
+.vl-wrap .vl-table-foot {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--vl-s3);
+	align-items: center;
+	justify-content: space-between;
+	margin-top: var(--vl-s4);
+	font-size: 13px;
+}
+
+.vl-wrap .vl-pager {
+	margin-top: var(--vl-s4);
+}
+
+.vl-wrap .vl-pager .page-numbers {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 32px;
+	height: 32px;
+	padding: 0 var(--vl-s2);
+	margin-right: var(--vl-s1);
+	font-size: 13px;
+	color: var(--vl-body);
+	background: var(--vl-surface);
+	border: 1px solid var(--vl-line-strong);
+	border-radius: var(--vl-r-control);
+	text-decoration: none;
+}
+
+.vl-wrap .vl-pager .page-numbers:hover {
+	color: var(--vl-ink);
+	border-color: var(--vl-field);
+	text-decoration: none;
+}
+
+.vl-wrap .vl-pager .page-numbers.current {
+	color: #fff;
+	background: var(--vl-accent);
+	border-color: var(--vl-accent);
+}
+
+.vl-wrap .vl-pager .page-numbers.dots {
+	background: transparent;
+	border-color: transparent;
+}
+
+/* ---------------------------------------------- the posts list column */
+
+/*
+ * The only block that cannot be scoped: these render inside WordPress's own
+ * list table, which has no wrapper of ours to hang off.
+ */
+
+.vl-col {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.vl-col--off {
+	opacity: 0.5;
+}
+
+a.vl-dot {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 999px;
+	text-decoration: none;
+	box-shadow: none;
+}
+
+a.vl-dot:hover {
+	background: #f1f1f6;
+}
+
+a.vl-dot:focus-visible {
+	outline: 2px solid #4f46e5;
+	outline-offset: 1px;
+}
+
+.vl-tip {
+	position: absolute;
+	left: 50%;
+	top: 30px;
+	z-index: 40;
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transform: translateX(-50%) translateY(-4px);
+	transition: opacity 0.14s ease, transform 0.14s ease;
+}
+
+a.vl-dot:hover .vl-tip,
+a.vl-dot:focus-within .vl-tip {
+	opacity: 1;
+	visibility: visible;
+	transform: translateX(-50%) translateY(0);
+}
+
+.vl-tip__card {
+	display: block;
+	width: 184px;
+	padding: 11px 13px;
+	color: #fff;
+	background: #14141c;
+	border-radius: 10px;
+	box-shadow: 0 14px 34px -10px rgba(20, 20, 28, 0.45);
+	text-align: left;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		"Helvetica Neue", Arial, sans-serif;
+}
+
+.vl-tip__head {
+	display: block;
+	margin-bottom: 8px;
+	font-size: 10.5px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #a5a7ba;
+}
+
+.vl-tip__row {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 3px 0;
+	font-size: 12px;
+	color: #c9cbd9;
+}
+
+.vl-tip__row strong {
+	font-variant-numeric: tabular-nums;
+}
+
+.vl-tip__foot {
+	display: block;
+	margin-top: 8px;
+	padding-top: 8px;
+	font-size: 11px;
+	color: #8d90a1;
+	border-top: 1px solid #2a2a38;
+}
+
+/* ----------------------------------------------------------- responsive */
+
+@media screen and (max-width: 960px) {
+
+	.vl-wrap .vl-grid-3 {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media screen and (max-width: 782px) {
+
+	.vl-wrap {
+		/* Touch targets, matching what wp-admin does at the same breakpoint. */
+		--vl-control: 44px;
+
+		margin-right: 12px;
+		font-size: 15px;
+	}
+
+	.vl-wrap .vl-grid-2,
+	.vl-wrap .vl-grid-3 {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.vl-wrap .vl-card,
+	.vl-wrap .vl-banner {
+		padding: var(--vl-s4);
+	}
+
+	.vl-wrap .vl-card__head,
+	.vl-wrap .vl-attn,
+	.vl-wrap .vl-metric,
+	.vl-wrap .vl-finding,
+	.vl-wrap .vl-note {
+		padding-left: var(--vl-s4);
+		padding-right: var(--vl-s4);
+	}
+
+	.vl-wrap .vl-table th:first-child,
+	.vl-wrap .vl-table td:first-child {
+		padding-left: var(--vl-s4);
+	}
+
+	.vl-wrap .vl-table th:last-child,
+	.vl-wrap .vl-table td:last-child {
+		padding-right: var(--vl-s4);
+	}
+
+	.vl-wrap input[type="checkbox"],
+	.vl-wrap input[type="radio"] {
+		width: 22px;
+		height: 22px;
+		min-width: 22px;
+	}
+
+	.vl-wrap input[type="checkbox"]:checked,
+	.vl-wrap input[type="checkbox"]:indeterminate {
+		background-size: 17px 17px;
+	}
+
+	.vl-wrap .vl-cost > div {
+		flex-basis: 50%;
+		border-left: 0;
+		border-top: 1px solid var(--vl-line);
+	}
+
+	.vl-wrap .vl-cost > div:nth-child(-n+2) {
+		border-top: 0;
+	}
+
+	.vl-wrap .vl-cost > div:nth-child(even) {
+		border-left: 1px solid var(--vl-line);
+	}
+
+	/* An odd number of stats leaves the last one alone on its row; let it
+	   have the whole row rather than half of one. */
+	.vl-wrap .vl-cost > div:last-child:nth-child(odd) {
+		flex-basis: 100%;
+	}
+
+	/*
+	 * Columns that are worth a glance on a desktop and worth nothing on a
+	 * phone, where they push the numbers off the edge. The scroll container
+	 * handles whatever is still too wide after this.
+	 */
+	.vl-wrap .vl-hide-sm {
+		display: none;
+	}
+
+	/*
+	 * The picker's four remaining columns fit a phone, so it must not be
+	 * forced to scroll. The report keeps five columns of numbers, which do
+	 * need the room -- that one scrolls the difference.
+	 */
+	.vl-wrap .vl-scroll .vl-table--report {
+		min-width: 440px;
+	}
+
+	.vl-wrap .vl-table td,
+	.vl-wrap .vl-table thead th {
+		padding: var(--vl-s3) var(--vl-s2);
+	}
+
+	/*
+	 * The path under a title is context, not content. Left to wrap it took
+	 * three lines of a narrow column and pushed the title itself into four.
+	 * The cap matters as much as the ellipsis: without it a long unbroken
+	 * path sets the column's minimum width and pushes the numbers off the
+	 * edge, which is the problem it was meant to solve.
+	 */
+	.vl-wrap .vl-table__sub {
+		max-width: 38vw;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.vl-wrap .vl-table__title {
+		max-width: 38vw;
+	}
+
+	.vl-wrap .vl-table__check {
+		width: 36px;
+	}
+
+	/*
+	 * The menu opens in the flow rather than hanging off the button. Anchored
+	 * to the right edge of a 272px panel, it ran past the left edge of a
+	 * phone screen and the labels were unreadable.
+	 */
+	.vl-wrap .vl-head__actions {
+		width: 100%;
+	}
+
+	.vl-wrap .vl-menu {
+		position: static;
+		flex: 1 1 100%;
+	}
+
+	.vl-wrap .vl-menu > summary {
+		width: 100%;
+	}
+
+	.vl-wrap .vl-menu__panel {
+		position: static;
+		width: auto;
+		margin-top: var(--vl-s2);
+		box-shadow: none;
+		border-color: var(--vl-line);
+	}
+
+	/* Two buttons sharing a row beats two buttons each on their own. */
+	.vl-wrap .vl-head__actions > .vl-btn {
+		flex: 1 1 auto;
+	}
+
+	.vl-wrap .vl-report__bar,
+	.vl-wrap .vl-report__head {
+		gap: var(--vl-s3);
+	}
+
+	.vl-wrap .vl-report__stamp,
+	.vl-wrap .vl-report__credits-side {
+		text-align: left;
+	}
+
+	/*
+	 * The chips carry the numbers, and flex: 0 0 auto meant they refused to
+	 * shrink and ran off the edge instead. Their own line, wrapping within it.
+	 */
+	.vl-wrap .vl-attn__chips {
+		flex: 1 1 100%;
+	}
+
+	.vl-wrap .vl-attn {
+		gap: var(--vl-s2);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.vl-wrap *,
+	.vl-tip {
+		transition: none !important;
+		animation: none !important;
+	}
+}
+
+/* ---------------------------------------------------------------- print */
+
+/*
+ * This is the PDF. Everything WordPress draws around the page comes off, and
+ * what is left is the report at full width on white -- which is why there is
+ * no bundled PDF engine in this plugin.
+ */
+@media print {
+
+	#adminmenumain,
+	#adminmenuback,
+	#adminmenuwrap,
+	#wpadminbar,
+	#wpfooter,
+	#screen-meta,
+	#screen-meta-links,
+	.update-nag,
+	.notice,
+	.vl-noprint {
+		display: none !important;
+	}
+
+	html,
+	body {
+		background: #fff !important;
+	}
+
+	#wpcontent,
+	#wpbody,
+	#wpbody-content {
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	.vl-wrap {
+		max-width: none;
+		margin: 0;
+		padding-top: 0;
+		font-size: 10.5pt;
+	}
+
+	.vl-wrap .vl-card,
+	.vl-wrap .vl-cost,
+	.vl-wrap .vl-banner,
+	.vl-wrap .vl-report__verdict {
+		box-shadow: none !important;
+	}
+
+	/* A row split across a page break is a row nobody can read. */
+	.vl-wrap .vl-table tbody tr,
+	.vl-wrap .vl-report__verdict,
+	.vl-wrap .vl-cost {
+		page-break-inside: avoid;
+		break-inside: avoid;
+	}
+
+	/* Repeat the column headings on every sheet. */
+	.vl-wrap .vl-table thead {
+		display: table-header-group;
+	}
+
+	/*
+	 * A running footer. Chrome repeats a fixed element on every printed
+	 * sheet, so page three still carries the product name and the site it
+	 * describes; browsers that do not repeat it still print it once.
+	 */
+	.vl-wrap .vl-report__running {
+		display: flex;
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		justify-content: space-between;
+		padding-top: 4px;
+		border-top: 1px solid #dedfe8;
+		font-size: 8pt;
+		color: #83869a;
+	}
+
+	/* Room for it, so the last row never sits underneath. */
+	.vl-wrap .vl-report__credits {
+		margin-bottom: 14mm;
+		page-break-inside: avoid;
+		break-inside: avoid;
+	}
+
+	.vl-wrap .vl-report__head {
+		page-break-after: avoid;
+		break-after: avoid;
+	}
+
+	@page {
+		margin: 14mm;
+	}
+}

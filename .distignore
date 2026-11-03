@@ -1,0 +1,11 @@
+# Not part of the plugin users install.
+#
+# .wporg holds the screenshots the readme declares. On WordPress.org those go in
+# the repository's own assets/ directory, which is served separately and is NOT
+# this plugin's assets/ folder - that one holds admin.css and admin.js and must
+# ship.
+.wporg
+.distignore
+dist
+.git
+.gitignore
