@@ -7,5 +7,6 @@
 .wporg
 .distignore
 dist
+docs
 .git
 .gitignore
