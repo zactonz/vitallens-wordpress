@@ -16,7 +16,7 @@ VitalLens checks the pages you pick against Google PageSpeed Insights on a sched
 
 **Real-user data where Google has it, a lab test where it doesn't — and it always says which.**
 
-Google publishes real-user measurements (CrUX) only for URLs with enough traffic, which most individual pages never have. Plenty of tools quietly show you a lab score and let you believe visitors measured it. VitalLens labels every number as *real visitors*, *origin only* or *lab only*, because a green page nobody has ever measured is worse than no answer.
+Google publishes real-user measurements (CrUX) only for URLs with enough traffic, which most individual pages never have. For everything else the only figure available is a lab test: one simulated load, which is useful for finding causes but is not what any visitor experienced. VitalLens labels every number as *real visitors*, *origin only* or *lab only*, so you always know which of the two you are reading.
 
 = What you get =
 
@@ -32,7 +32,7 @@ Google publishes real-user measurements (CrUX) only for URLs with enough traffic
 
 = Alerts that earn their send =
 
-Most tools alert on a percentage change, which is close to useless for Core Web Vitals: CrUX reports CLS on a 0.01 grid, so the smallest move a healthy page can make is a double-digit percentage. VitalLens judges a change by **how much of the remaining margin it consumed**. A metric that spends a third of its headroom gets an email while it is still passing; a metric that ticks by one grid step does not.
+A percentage change is a poor trigger for Core Web Vitals: CrUX reports CLS on a 0.01 grid, so the smallest move a healthy page can make is already a double-digit percentage. VitalLens judges a change by **how much of the remaining margin it consumed** instead. A metric that spends a third of its headroom gets an email while it is still passing; a metric that ticks by one grid step does not.
 
 Four alerts, each switched on or off separately:
 

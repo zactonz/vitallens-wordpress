@@ -280,11 +280,11 @@ class VitalLens_Settings_Page {
 	 */
 	private static function action_notice() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- display only, the action itself was nonced.
-		$msg = isset( $_GET['vl_msg'] ) ? sanitize_key( wp_unslash( $_GET['vl_msg'] ) ) : '';
+		$msg = isset( $_GET['vitallens_msg'] ) ? sanitize_key( wp_unslash( $_GET['vitallens_msg'] ) ) : '';
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- decoded first, then sanitised: sanitize_text_field() is the outermost call, so nothing reaches $detail unsanitised.
-		$detail = isset( $_GET['vl_detail'] ) ? sanitize_text_field( rawurldecode( wp_unslash( $_GET['vl_detail'] ) ) ) : '';
-		$tracked = isset( $_GET['vl_t'] ) ? (int) $_GET['vl_t'] : 0;
-		$checks = isset( $_GET['vl_c'] ) ? (int) $_GET['vl_c'] : 0;
+		$detail = isset( $_GET['vitallens_detail'] ) ? sanitize_text_field( rawurldecode( wp_unslash( $_GET['vitallens_detail'] ) ) ) : '';
+		$tracked = isset( $_GET['vitallens_t'] ) ? (int) $_GET['vitallens_t'] : 0;
+		$checks = isset( $_GET['vitallens_c'] ) ? (int) $_GET['vitallens_c'] : 0;
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		switch ( $msg ) {

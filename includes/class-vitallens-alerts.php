@@ -195,7 +195,7 @@ class VitalLens_Alerts {
 
 		// Per page, per type, per day: a flapping metric cannot turn into a
 		// stream of mail, and a second sweep cannot double-send.
-		$key = 'vl_sent_' . md5( $type . ':' . (int) $tracked->id . ':' . gmdate( 'Y-m-d' ) );
+		$key = 'vitallens_sent_' . md5( $type . ':' . (int) $tracked->id . ':' . gmdate( 'Y-m-d' ) );
 		if ( get_transient( $key ) ) {
 			return false;
 		}
@@ -414,7 +414,7 @@ class VitalLens_Alerts {
 			return;
 		}
 
-		$key = 'vl_stalled_notice';
+		$key = 'vitallens_stalled_notice';
 		if ( get_transient( $key ) ) {
 			return;
 		}

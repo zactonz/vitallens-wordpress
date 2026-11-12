@@ -83,16 +83,16 @@ class VitalLens_Backup {
 		if ( 'restore' === $do ) {
 			$result = self::restore( $file );
 			$args   = is_wp_error( $result )
-				? array( 'vl_msg' => 'restore_failed', 'vl_detail' => rawurlencode( $result->get_error_message() ) )
-				: array( 'vl_msg' => 'restored', 'vl_t' => $result['tracked'], 'vl_c' => $result['checks'] );
+				? array( 'vitallens_msg' => 'restore_failed', 'vitallens_detail' => rawurlencode( $result->get_error_message() ) )
+				: array( 'vitallens_msg' => 'restored', 'vitallens_t' => $result['tracked'], 'vitallens_c' => $result['checks'] );
 			wp_safe_redirect( add_query_arg( $args, $back ) );
 			exit;
 		}
 
 		$result = self::create();
 		$args   = is_wp_error( $result )
-			? array( 'vl_msg' => 'backup_failed', 'vl_detail' => rawurlencode( $result->get_error_message() ) )
-			: array( 'vl_msg' => 'backed_up' );
+			? array( 'vitallens_msg' => 'backup_failed', 'vitallens_detail' => rawurlencode( $result->get_error_message() ) )
+			: array( 'vitallens_msg' => 'backed_up' );
 		wp_safe_redirect( add_query_arg( $args, $back ) );
 		exit;
 	}

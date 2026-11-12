@@ -345,7 +345,7 @@ class VitalLens_Store {
 		$checks  = self::checks_table();
 		$in      = implode( ',', array_fill( 0, count( $post_ids ), '%d' ) );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above, values bound below.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $in is a list of %d placeholders built from count($post_ids) above and bound below; $post_ids is intval-mapped, filtered, and returned early when empty, so IN () cannot occur.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT t.id AS tracked_id, t.post_id, t.strategy,

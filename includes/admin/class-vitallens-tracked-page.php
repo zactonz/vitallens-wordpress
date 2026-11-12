@@ -27,8 +27,8 @@ class VitalLens_Tracked_Page {
 		$notice = self::maybe_save();
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only list filters.
-		$type   = isset( $_GET['vl_type'] ) ? sanitize_key( wp_unslash( $_GET['vl_type'] ) ) : 'any';
-		$search = isset( $_GET['vl_s'] ) ? sanitize_text_field( wp_unslash( $_GET['vl_s'] ) ) : '';
+		$type   = isset( $_GET['vitallens_type'] ) ? sanitize_key( wp_unslash( $_GET['vitallens_type'] ) ) : 'any';
+		$search = isset( $_GET['vitallens_s'] ) ? sanitize_text_field( wp_unslash( $_GET['vitallens_s'] ) ) : '';
 		$paged  = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
@@ -53,7 +53,7 @@ class VitalLens_Tracked_Page {
 				<input type="hidden" name="page" value="<?php echo esc_attr( VitalLens_Admin::SLUG . '-tracked' ); ?>">
 				<label class="vl-filters__item">
 					<span><?php esc_html_e( 'Type', 'vitallens' ); ?></span>
-					<select name="vl_type" class="vl-input">
+					<select name="vitallens_type" class="vl-input">
 						<option value="any" <?php selected( 'any', $type ); ?>><?php esc_html_e( 'All types', 'vitallens' ); ?></option>
 						<?php foreach ( self::post_types() as $slug => $label ) : ?>
 							<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $slug, $type ); ?>><?php echo esc_html( $label ); ?></option>
@@ -62,14 +62,14 @@ class VitalLens_Tracked_Page {
 				</label>
 				<label class="vl-filters__item vl-filters__item--grow">
 					<span><?php esc_html_e( 'Search', 'vitallens' ); ?></span>
-					<input type="search" name="vl_s" class="vl-input" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Title', 'vitallens' ); ?>">
+					<input type="search" name="vitallens_s" class="vl-input" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Title', 'vitallens' ); ?>">
 				</label>
 				<button type="submit" class="vl-btn vl-btn--ghost"><?php esc_html_e( 'Filter', 'vitallens' ); ?></button>
 			</form>
 
 			<form method="post">
 				<?php wp_nonce_field( 'vitallens_save_tracked', 'vitallens_nonce' ); ?>
-				<input type="hidden" name="vl_submitted" value="1">
+				<input type="hidden" name="vitallens_submitted" value="1">
 				<?php
 				/*
 				 * Which rows this screen actually offered. Without it, saving a
@@ -77,7 +77,7 @@ class VitalLens_Tracked_Page {
 				 * "unchecked" and untrack the lot.
 				 */
 				?>
-				<input type="hidden" name="vl_onscreen" value="<?php echo esc_attr( implode( ',', wp_list_pluck( $query->posts, 'ID' ) ) ); ?>">
+				<input type="hidden" name="vitallens_onscreen" value="<?php echo esc_attr( implode( ',', wp_list_pluck( $query->posts, 'ID' ) ) ); ?>">
 
 				<div class="vl-card vl-card--flush">
 					<?php
@@ -114,7 +114,7 @@ class VitalLens_Tracked_Page {
 							?>
 							<tr class="<?php echo $is_on ? 'is-tracked' : ''; ?>">
 								<td class="vl-table__check">
-									<input type="checkbox" name="vl_track[]" value="<?php echo esc_attr( $post_id ); ?>"
+									<input type="checkbox" name="vitallens_track[]" value="<?php echo esc_attr( $post_id ); ?>"
 										<?php checked( $is_on ); ?>
 										aria-label="<?php echo esc_attr( sprintf(
 											/* translators: %s: post title. */
@@ -223,7 +223,7 @@ class VitalLens_Tracked_Page {
 	 * @return string Notice text.
 	 */
 	private static function maybe_save() {
-		if ( ! isset( $_POST['vl_submitted'], $_POST['vitallens_nonce'] ) ) {
+		if ( ! isset( $_POST['vitallens_submitted'], $_POST['vitallens_nonce'] ) ) {
 			return '';
 		}
 		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['vitallens_nonce'] ) ), 'vitallens_save_tracked' ) ) {
@@ -233,8 +233,8 @@ class VitalLens_Tracked_Page {
 			return '';
 		}
 
-		$wanted = isset( $_POST['vl_track'] ) ? array_map( 'intval', (array) wp_unslash( $_POST['vl_track'] ) ) : array();
-		$onscreen = isset( $_POST['vl_onscreen'] ) ? array_map( 'intval', explode( ',', sanitize_text_field( wp_unslash( $_POST['vl_onscreen'] ) ) ) ) : array();
+		$wanted = isset( $_POST['vitallens_track'] ) ? array_map( 'intval', (array) wp_unslash( $_POST['vitallens_track'] ) ) : array();
+		$onscreen = isset( $_POST['vitallens_onscreen'] ) ? array_map( 'intval', explode( ',', sanitize_text_field( wp_unslash( $_POST['vitallens_onscreen'] ) ) ) ) : array();
 		$onscreen = array_filter( $onscreen );
 
 		$devices = (array) VitalLens_Settings::get( 'devices', array( 'mobile' ) );

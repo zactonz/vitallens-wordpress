@@ -36,13 +36,14 @@ only for pages with enough traffic**. By the time a page appears in a failing gr
 been failing for a month. VitalLens checks the pages that matter to you on your own schedule
 and keeps the full history, so you see a metric drifting long before Google reports it.
 
-## The problem with most Core Web Vitals plugins
+## Real-visitor data and lab tests are not the same thing
 
-**They show you a lab score and let you believe your visitors measured it.**
+**A lab score is not what your visitors measured.**
 
 Google publishes real-user data — the Chrome User Experience Report, or CrUX — only for URLs
-with enough traffic. Most individual pages on most sites never qualify. Many tools quietly
-fall back to a single simulated page load and present the number identically.
+with enough traffic. Most individual pages on most sites never qualify. For those, the only
+figure available is a single simulated page load, which is useful for finding causes but is
+not what anyone actually experienced.
 
 VitalLens labels **every** number as one of three things:
 

@@ -8,5 +8,9 @@
 .distignore
 dist
 docs
+
+# Repository landing page, not plugin documentation. WordPress.org reads
+# readme.txt, and this file points at images under docs/ which do not ship.
+README.md
 .git
 .gitignore

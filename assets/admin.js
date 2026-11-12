@@ -186,7 +186,7 @@
 	function wirePicker() {
 		var all = document.getElementById( 'vl-check-all' );
 		var boxes = Array.prototype.slice.call(
-			document.querySelectorAll( 'input[name="vl_track[]"]' )
+			document.querySelectorAll( 'input[name="vitallens_track[]"]' )
 		);
 
 		if ( ! boxes.length ) {
