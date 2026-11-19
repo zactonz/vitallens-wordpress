@@ -40,7 +40,7 @@ class VitalLens_Tracked_Page {
 		?>
 		<div class="wrap vl-wrap">
 			<h1 class="vl-title"><?php esc_html_e( 'Tracked pages', 'vitallens' ); ?></h1>
-			<p class="vl-lede"><?php esc_html_e( 'Pick what gets checked. Each page costs one API call per device, per run.', 'vitallens' ); ?></p>
+			<p class="vl-lede"><?php esc_html_e( 'Pick what gets checked. Each page costs one API call per device, every time it is checked.', 'vitallens' ); ?></p>
 
 			<?php if ( $notice ) : ?>
 				<div class="vl-notice vl-notice--good" role="status"><p><?php echo esc_html( $notice ); ?></p></div>
@@ -430,7 +430,7 @@ class VitalLens_Tracked_Page {
 
 		$cells = array(
 			array( 'pages', __( 'Pages tracked', 'vitallens' ), number_format_i18n( $pages ), '' ),
-			array( 'per_run', __( 'Calls per run', 'vitallens' ), number_format_i18n( $per_run ), '' ),
+			array( 'per_run', __( 'Calls per full pass', 'vitallens' ), number_format_i18n( $per_run ), '' ),
 			array( 'per_month', __( 'Per month', 'vitallens' ), number_format_i18n( $per_month ), '' ),
 			array( 'share', __( 'Of your allowance', 'vitallens' ), number_format_i18n( $share, 1 ) . '%', 'vl-cost__v--good' ),
 		);

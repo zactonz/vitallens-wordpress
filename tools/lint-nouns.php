@@ -41,6 +41,9 @@ const FOLDED = array(
 	'$tracked',
 	// COUNT(DISTINCT post_id).
 	'VitalLens_Store::count_active_pages()',
+	// Checks an hour divided by the device count, so pages an hour. Not a row
+	// count at all - it is derived from the batch setting, never from a query.
+	'$pages_per_hour',
 );
 
 /**

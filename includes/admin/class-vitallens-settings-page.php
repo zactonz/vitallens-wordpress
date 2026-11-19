@@ -124,7 +124,25 @@ class VitalLens_Settings_Page {
 					</fieldset>
 
 					<p class="vl-help">
-						<?php esc_html_e( 'A sweep runs every 15 minutes and takes the pages that are due, so “pages per run” is what sets how fast a backlog clears — 5 per run works through 20 pages in an hour. Each device counts as its own check.', 'vitallens' ); ?>
+						<?php
+						$per_hour       = max( 1, (int) $s['batch_size'] ) * 4;
+						$device_count   = max( 1, count( (array) $s['devices'] ) );
+						$pages_per_hour = intdiv( $per_hour, $device_count );
+						printf(
+							esc_html(
+								/* translators: 1: checks in one sweep, 2: checks in an hour, 3: pages covered in an hour. */
+								_n(
+									'A sweep runs every 15 minutes and takes whatever is due, so this is what sets how fast a backlog clears: %1$d checks per run is %2$d an hour, covering %3$d page because each device is checked separately.',
+									'A sweep runs every 15 minutes and takes whatever is due, so this is what sets how fast a backlog clears: %1$d checks per run is %2$d an hour, covering %3$d pages because each device is checked separately.',
+									$pages_per_hour,
+									'vitallens'
+								)
+							),
+							(int) $s['batch_size'],
+							(int) $per_hour,
+							(int) $pages_per_hour
+						);
+						?>
 					</p>
 
 					<?php self::render_cost( $s ); ?>
@@ -366,7 +384,7 @@ class VitalLens_Settings_Page {
 		?>
 		<div class="vl-cost">
 			<div><span class="vl-cost__k"><?php esc_html_e( 'Pages tracked', 'vitallens' ); ?></span><span class="vl-cost__v"><?php echo esc_html( number_format_i18n( $pages ) ); ?></span></div>
-			<div><span class="vl-cost__k"><?php esc_html_e( 'Calls per run', 'vitallens' ); ?></span><span class="vl-cost__v"><?php echo esc_html( number_format_i18n( $per_run ) ); ?></span></div>
+			<div><span class="vl-cost__k"><?php esc_html_e( 'Calls per full pass', 'vitallens' ); ?></span><span class="vl-cost__v"><?php echo esc_html( number_format_i18n( $per_run ) ); ?></span></div>
 			<div><span class="vl-cost__k"><?php esc_html_e( 'Per month', 'vitallens' ); ?></span><span class="vl-cost__v"><?php echo esc_html( number_format_i18n( $per_month ) ); ?></span></div>
 			<div><span class="vl-cost__k"><?php esc_html_e( 'Of your allowance', 'vitallens' ); ?></span><span class="vl-cost__v vl-cost__v--good"><?php echo esc_html( number_format_i18n( $share, 1 ) . '%' ); ?></span></div>
 		</div>
