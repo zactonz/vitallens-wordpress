@@ -9,6 +9,11 @@
 dist
 docs
 
+# Development gates, not plugin code. tools/lint-nouns.php fails any string
+# that renders a per-device row count with the word "page" - the defect 1.0.1
+# fixed in six places.
+tools
+
 # Repository landing page, not plugin documentation. WordPress.org reads
 # readme.txt, and this file points at images under docs/ which do not ship.
 README.md

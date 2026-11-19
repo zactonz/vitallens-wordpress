@@ -89,7 +89,7 @@ class VitalLens_Settings_Page {
 						</label>
 
 						<label class="vl-label">
-							<span><?php esc_html_e( 'Pages per run', 'vitallens' ); ?></span>
+							<span><?php esc_html_e( 'Checks per run', 'vitallens' ); ?></span>
 							<select name="batch_size" class="vl-input">
 								<?php foreach ( VitalLens_Settings::batch_sizes() as $size => $label ) : ?>
 									<option value="<?php echo esc_attr( $size ); ?>" <?php selected( (int) $s['batch_size'], (int) $size ); ?>>
@@ -296,10 +296,18 @@ class VitalLens_Settings_Page {
 			case 'restored':
 				return array(
 					'text' => sprintf(
-						/* translators: 1: pages restored, 2: checks restored. */
-						__( 'Restored %1$d tracked page and %2$d stored checks. Anything already here was left alone.', 'vitallens' ),
-						$tracked,
-						$checks
+						/* translators: 1: "3 tracked pages", 2: "9 stored checks". */
+						__( 'Restored %1$s and %2$s. Anything already here was left alone.', 'vitallens' ),
+						sprintf(
+							/* translators: %d: number of pages. */
+							_n( '%d tracked page', '%d tracked pages', $tracked, 'vitallens' ),
+							$tracked
+						),
+						sprintf(
+							/* translators: %d: number of checks. */
+							_n( '%d stored check', '%d stored checks', $checks, 'vitallens' ),
+							$checks
+						)
 					),
 					'tone' => 'good',
 				);

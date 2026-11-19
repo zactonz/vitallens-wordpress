@@ -109,7 +109,13 @@ class VitalLens_Dashboard_Page {
 			$page_id = (int) $row->post_id;
 
 			if ( ! isset( $pages[ $page_id ] ) ) {
-				$pages[ $page_id ] = array( 'checked' => false, 'measured' => false, 'bad' => false );
+				$pages[ $page_id ] = array(
+					'checked'  => false,
+					'measured' => false,
+					'bad'      => false,
+					'lab'      => false,
+					'field'    => false,
+				);
 			}
 
 			if ( empty( $row->check_id ) ) {
@@ -119,8 +125,11 @@ class VitalLens_Dashboard_Page {
 			$pages[ $page_id ]['checked'] = true;
 
 			$lab_only = ( VitalLens_PSI_Client::FIELD_NONE === $row->field_source );
+
 			if ( $lab_only ) {
-				++$state['lab_only'];
+				$pages[ $page_id ]['lab'] = true;
+			} else {
+				$pages[ $page_id ]['field'] = true;
 			}
 
 			$prefix  = $lab_only ? 'l_' : 'f_';
@@ -202,6 +211,19 @@ class VitalLens_Dashboard_Page {
 		$state['tracked'] = count( $pages );
 
 		foreach ( $pages as $page ) {
+			/*
+			 * Counted before the four states below rather than inside one of
+			 * them, because having no real-user data is orthogonal to passing,
+			 * failing or waiting — a lab-only page is still one of those.
+			 *
+			 * A page counts as lab-only only when EVERY device that was checked
+			 * came back without field data. One device having real-user data
+			 * means the page has some, so saying it has none would be wrong.
+			 */
+			if ( $page['lab'] && ! $page['field'] ) {
+				++$state['lab_only'];
+			}
+
 			if ( ! $page['checked'] ) {
 				++$state['pending'];
 				continue;

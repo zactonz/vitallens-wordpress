@@ -341,13 +341,18 @@ class VitalLens_Tracked_Page {
 	 * @return int
 	 */
 	private static function never_checked( $rows ) {
-		$count = 0;
+		$pages   = array();
+		$checked = array();
+
 		foreach ( $rows as $row ) {
-			if ( empty( $row->check_id ) ) {
-				++$count;
+			$id            = (int) $row->post_id;
+			$pages[ $id ]  = true;
+			if ( ! empty( $row->check_id ) ) {
+				$checked[ $id ] = true;
 			}
 		}
-		return $count;
+
+		return count( array_diff_key( $pages, $checked ) );
 	}
 
 	/**

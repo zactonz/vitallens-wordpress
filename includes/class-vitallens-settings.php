@@ -52,10 +52,10 @@ class VitalLens_Settings {
 	 */
 	public static function batch_sizes() {
 		return array(
-			3  => __( '3 pages — slow hosts', 'vitallens' ),
-			5  => __( '5 pages — safe everywhere', 'vitallens' ),
-			10 => __( '10 pages — faster, needs a longer timeout', 'vitallens' ),
-			20 => __( '20 pages — only with real cron', 'vitallens' ),
+			3  => __( '3 checks — slow hosts', 'vitallens' ),
+			5  => __( '5 checks — safe everywhere', 'vitallens' ),
+			10 => __( '10 checks — faster, needs a longer timeout', 'vitallens' ),
+			20 => __( '20 checks — only with real cron', 'vitallens' ),
 		);
 	}
 

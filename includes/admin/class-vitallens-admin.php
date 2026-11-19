@@ -299,8 +299,8 @@ class VitalLens_Admin {
 		}
 
 		$message = sprintf(
-			/* translators: 1: number checked, 2: number that failed, 3: number still waiting. */
-			_n( 'Checked %1$d page. %2$d failed, %3$d still due.', 'Checked %1$d pages. %2$d failed, %3$d still due.', $summary['checked'], 'vitallens' ),
+			/* translators: 1: number of checks run, 2: number that failed, 3: number still waiting. */
+			_n( 'Ran %1$d check. %2$d failed, %3$d still due.', 'Ran %1$d checks. %2$d failed, %3$d still due.', $summary['checked'], 'vitallens' ),
 			$summary['checked'],
 			$summary['failed'],
 			$summary['remaining']
@@ -310,8 +310,8 @@ class VitalLens_Admin {
 		foreach ( array_slice( $summary['errors'], 0, 3, true ) as $reason => $count ) {
 			$errors[] = $count > 1
 				? sprintf(
-					/* translators: 1: error message, 2: how many pages hit it. */
-					__( '%1$s (%2$d pages)', 'vitallens' ),
+					/* translators: 1: error message, 2: how many checks hit it. */
+					__( '%1$s (%2$d checks)', 'vitallens' ),
 					$reason,
 					$count
 				)

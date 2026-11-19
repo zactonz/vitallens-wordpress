@@ -282,7 +282,11 @@ class VitalLens_Backup {
 			'findings' => 0,
 		);
 
-		$tracked_map = array();
+		// Rows are per page PER DEVICE, and the notice this feeds reports
+		// pages, so the distinct post ids are collected rather than the rows
+		// counted. Restoring one page on two devices restored one page.
+		$tracked_map    = array();
+		$restored_pages = array();
 		foreach ( (array) ( isset( $data['tracked'] ) ? $data['tracked'] : array() ) as $row ) {
 			if ( empty( $row['strategy'] ) ) {
 				continue;
@@ -303,9 +307,11 @@ class VitalLens_Backup {
 					'created_at'      => empty( $row['created_at'] ) ? current_time( 'mysql', true ) : $row['created_at'],
 				)
 			);
-			$tracked_map[ (int) $row['id'] ] = (int) $wpdb->insert_id;
-			++$counts['tracked'];
+			$tracked_map[ (int) $row['id'] ]          = (int) $wpdb->insert_id;
+			$restored_pages[ (int) $row['post_id'] ]  = true;
 		}
+
+		$counts['tracked'] = count( $restored_pages );
 
 		// What is already stored, read once, so a second restore is a no-op
 		// rather than sixteen thousand SELECTs.
