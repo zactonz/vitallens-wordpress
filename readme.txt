@@ -4,7 +4,7 @@ Tags: core web vitals, pagespeed, performance, lcp, inp
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -105,6 +105,10 @@ If you genuinely want the tables gone, there is a tick box on the Settings scree
 5. The site-wide report: every tracked page in one table, ready to print or save as a PDF.
 
 == Changelog ==
+
+= 1.0.1 =
+* Fixed: the dashboard counted measurements and called them pages. The plugin stores one row per page per device, so a site tracking 38 pages on mobile and desktop was told "1 of 76 pages is failing" -- while the Tracked pages screen, which counts posts, said 38 at the same moment. The dashboard now counts pages, and a page that fails on one device is counted once rather than twice. The list of pages needing attention still shows the device, because a page failing on mobile and passing on desktop is a real difference worth seeing.
+* Fixed: the settings screen showed the same measurement count as "Pages tracked", then multiplied it by the number of devices again to estimate the cost. On a two-device site that doubled both numbers: 76 pages and 152 calls where the truth was 38 and 76. The estimate now counts the rows that will actually be requested, so it also stays right when a device is switched on after some pages were already tracked.
 
 = 1.0.0 =
 First public release. The versions below were development builds and were never

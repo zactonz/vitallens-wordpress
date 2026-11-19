@@ -398,6 +398,24 @@ class VitalLens_Store {
 		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE active = 1" );
 	}
 
+	/**
+	 * How many distinct pages are tracked.
+	 *
+	 * The table holds one row per page per device, so count_active() above is a
+	 * count of measurements — which is the right number for "calls per run" and
+	 * the wrong one for "pages tracked". Reported as pages it read "76" on a
+	 * site tracking 38, while the Tracked pages screen said 38 at the same
+	 * moment, because that screen counts posts.
+	 *
+	 * @return int
+	 */
+	public static function count_active_pages() {
+		global $wpdb;
+		$table = self::tracked_table();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is built from $wpdb->prefix.
+		return (int) $wpdb->get_var( "SELECT COUNT(DISTINCT post_id) FROM {$table} WHERE active = 1" );
+	}
+
 	// ------------------------------------------------------------ checks
 
 	/**

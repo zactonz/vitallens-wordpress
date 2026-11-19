@@ -347,9 +347,10 @@ class VitalLens_Settings_Page {
 	 * @return void
 	 */
 	private static function render_cost( $s ) {
-		$devices  = max( 1, count( (array) $s['devices'] ) );
-		$pages    = VitalLens_Store::count_active();
-		$per_run  = $pages * $devices;
+		$pages    = VitalLens_Store::count_active_pages();
+		// Not pages multiplied by devices: a page tracked before a device was
+		// added still has only the rows it had, and a row is a call.
+		$per_run  = VitalLens_Store::count_active();
 		$interval = max( 1, (int) $s['interval_hours'] );
 		$per_month = (int) round( $per_run * ( 24 / $interval ) * 30 );
 		$share     = ( $per_run * ( 24 / $interval ) ) / VitalLens_Settings::DAILY_ALLOWANCE * 100;

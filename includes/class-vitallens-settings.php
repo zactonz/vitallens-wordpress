@@ -211,7 +211,9 @@ class VitalLens_Settings {
 	 * @return int
 	 */
 	public static function calls_per_run() {
-		return VitalLens_Store::count_active() * max( 1, count( (array) self::get( 'devices', array( 'mobile' ) ) ) );
+		// One active row IS one call: the table holds a row per page per device,
+		// so multiplying by the device count again charged every page twice.
+		return VitalLens_Store::count_active();
 	}
 
 	/**

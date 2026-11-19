@@ -3,7 +3,7 @@
  * Plugin Name:       VitalLens
  * Plugin URI:        https://vitallens.zactonz.com/
  * Description:       Tracks Core Web Vitals for the pages you choose — real-user data where Google has it, a lab test where it doesn't — and keeps the history so you can see what changed.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.2
  * Requires PHP:      7.4
  * Author:            Zactonz Technologies
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'VITALLENS_VERSION', '1.0.0' );
+define( 'VITALLENS_VERSION', '1.0.1' );
 define( 'VITALLENS_FILE', __FILE__ );
 define( 'VITALLENS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'VITALLENS_URL', plugin_dir_url( __FILE__ ) );

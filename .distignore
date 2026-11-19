@@ -14,3 +14,8 @@ docs
 README.md
 .git
 .gitignore
+
+# macOS writes these into any folder someone opens in Finder, and Plugin Check
+# refuses a package containing a hidden file. Excluded here rather than left to
+# whoever runs the build to remember.
+.DS_Store

@@ -82,7 +82,7 @@ class VitalLens_Dashboard_Page {
 	 */
 	public static function assess( $rows ) {
 		$state = array(
-			'tracked'   => count( $rows ),
+			'tracked'   => 0,
 			'passing'   => 0,
 			'failing'   => 0,
 			'unmeasured' => 0,
@@ -92,11 +92,31 @@ class VitalLens_Dashboard_Page {
 			'attention' => array(),
 		);
 
+		/*
+		 * One row per page PER DEVICE, so counting rows counts measurements and
+		 * not pages. Reported as pages it read "1 of 76 pages is failing" on a
+		 * site tracking 38 — and the Tracked pages screen, which counts posts,
+		 * said 38 at the same moment.
+		 *
+		 * The rows still drive the attention list below, because a page failing
+		 * on mobile and passing on desktop is a real row worth showing. Only the
+		 * headline counts are folded back to pages, where a page is failing if
+		 * any of its devices is.
+		 */
+		$pages = array();
+
 		foreach ( $rows as $row ) {
+			$page_id = (int) $row->post_id;
+
+			if ( ! isset( $pages[ $page_id ] ) ) {
+				$pages[ $page_id ] = array( 'checked' => false, 'measured' => false, 'bad' => false );
+			}
+
 			if ( empty( $row->check_id ) ) {
-				++$state['pending'];
 				continue;
 			}
+
+			$pages[ $page_id ]['checked'] = true;
 
 			$lab_only = ( VitalLens_PSI_Client::FIELD_NONE === $row->field_source );
 			if ( $lab_only ) {
@@ -139,13 +159,14 @@ class VitalLens_Dashboard_Page {
 			}
 
 			if ( 0 === $seen ) {
-				++$state['unmeasured'];
 				continue;
 			}
 
+			$pages[ $page_id ]['measured'] = true;
+
 			if ( $bad ) {
-				++$state['failing'];
-				$state['attention'][] = array(
+				$pages[ $page_id ]['bad'] = true;
+				$state['attention'][]     = array(
 					'row'     => $row,
 					'reason'  => sprintf(
 						/* translators: %s: comma-separated metric names. */
@@ -157,8 +178,6 @@ class VitalLens_Dashboard_Page {
 				);
 				continue;
 			}
-
-			++$state['passing'];
 
 			if ( $worst && $worst['headroom'] <= 0.33 ) {
 				if ( null === $state['tightest'] || $worst['headroom'] < $state['tightest']['headroom'] ) {
@@ -177,6 +196,28 @@ class VitalLens_Dashboard_Page {
 					'lab'    => $lab_only,
 				);
 			}
+		}
+
+		// Fold the per-device rows back to pages for the headline counts.
+		$state['tracked'] = count( $pages );
+
+		foreach ( $pages as $page ) {
+			if ( ! $page['checked'] ) {
+				++$state['pending'];
+				continue;
+			}
+
+			if ( ! $page['measured'] ) {
+				++$state['unmeasured'];
+				continue;
+			}
+
+			if ( $page['bad'] ) {
+				++$state['failing'];
+				continue;
+			}
+
+			++$state['passing'];
 		}
 
 		usort(
